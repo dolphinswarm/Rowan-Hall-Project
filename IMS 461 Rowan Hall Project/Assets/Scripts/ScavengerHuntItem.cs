@@ -3,27 +3,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using TMPro;
+using UnityEngine.UI;
 
 public class ScavengerHuntItem : MonoBehaviour
 {
     // ================================================= Variables
     // Public variables
     public GameObject text;
+    public GameObject headerText;
     public GameObject popup;
-    public List<AudioClip> audio_clips;
+    public GameObject demandScore;
+    public GameObject header;
+    public List<AudioClip> voiceClips;
+    public AudioClip success;
+    public AudioClip gameWon;
 
     // Private variables
-    private int current_clip = 0;
+    private int currentClip = 0;
     private Renderer renderer;
-    private GameObject ar_camera;
+    private GameObject arCamera;
     private List<string> demands;
+    private List<string> headers = new List<string>() { "BAM 1.0 Demand #1", "BAM 1.0 Demand #2", "BAM 1.0 Demand #3", "BAM 1.0 Demand #4", "BAM 1.0 Demand #5",
+        "BAM 1.0 Demand #6", "BAM 1.0 Demand #7", "BAM 2.0 Demand #1", "BAM 2.0 Demand #2", "BAM 2.0 Demand #3", "BAM 2.0 Demand #4", "BAM 2.0 Demand #5", "BAM 2.0 Demand #6",
+        "BAM 2.0 Demand #7", "BAM 2.0 Demand #8", "BAM 2.0 Demand #9", "BAM 2.0 Demand #10"};
+    private AudioSource player;
+    private enum State { PLAYING_JINGLE, PLAYING_DEMAND, WAITING, WON };
+    private State currentState;
 
     // ================================================= Methods
     void Start()
     {
-        // Set Renderer and AR Camera
+        // Set Renderer, AR Camera, and Audio Source
         renderer = GetComponent<Renderer>();
-        ar_camera = GameObject.FindGameObjectWithTag("MainCamera");
+        arCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        player = GetComponent<AudioSource>();
 
         // Change the position of the megaphone
         ChangePosition();
@@ -91,7 +104,7 @@ public class ScavengerHuntItem : MonoBehaviour
             "staff and student employees to navigate incident reporting forms. Requiring Resident Assistants to inform residents of the process of accessing incident reporting forms. " +
             "Spelling out the 'Office of Equity and Equal Opportunity' on the MyMiami homepage as a Quick Link. Administering a quick and efficient means of educating all current Miami " +
             "students -- on all campuses -- on how they can access this link.");
-        
+
         // BAM 2.0 - Demand #8
         demands.Add("We demand the implementation of diversity and inclusion training for all incoming students, current students, and faculty and " +
             "staff on all Miami University campuses (Oxford, Hamilton, Middletown, West Chester and Luxembourg).");
@@ -105,34 +118,136 @@ public class ScavengerHuntItem : MonoBehaviour
         demands.Add("We demand a meeting with the following administrators: Dr. Greg Crawford, University President. Dr. Ron Scott, Associate Vice President for Institutional " +
             "Diversity. Dr. Jayne Brownell, Vice President of Student Affairs. Dr. Mike Curme, Dean of Students. Dr. Kelley Kimple, Director of the Office of Diversity Affairs");
 
-        // Shuffle the lists simulataneouslys
-        for (int i = 0; i < audio_clips.Count; i++)
+        // Shuffle the lists simulataneously
+        for (int i = 0; i < demands.Count; i++)
         {
-            var randomIndex = Random.Range(0, audio_clips.Count - 1);
-            var tmp = audio_clips[i];
-            audio_clips[i] = audio_clips[randomIndex];
-            audio_clips[randomIndex] = tmp;
+            // Choose a random index for the current item to move to
+            var randomIndex = Random.Range(0, demands.Count - 1);
+
+            // Swap the demands
+            var tmp1 = demands[i];
+            demands[i] = demands[randomIndex];
+            demands[randomIndex] = tmp1;
+
+            // Swap the voice clips
+            var tmp2 = voiceClips[i];
+            voiceClips[i] = voiceClips[randomIndex];
+            voiceClips[randomIndex] = tmp2;
+
+            // Swap the headers
+            var tmp3 = headers[i];
+            headers[i] = headers[randomIndex];
+            headers[randomIndex] = tmp3;
         }
+
+        // Set current state to waiting
+        currentState = State.WAITING;
 
     }
 
     void Update()
     {
         // Calculate the distance from the camera to the microphone
-        float distance = (transform.position - ar_camera.transform.position).magnitude;
+        float distance = (transform.position - arCamera.transform.position).magnitude;
 
-        // If close enough, show the demand
-        if (renderer.isVisible && distance <= 1.0f)
+        // If close enough and visible and waiting, show the demand
+        if (renderer.isVisible && distance <= 1.0f && currentState == State.WAITING)
         {
-            text.GetComponent<TMP_Text>().SetText(demands[0]);
-            popup.SetActive(true);
+            ShowDemand();
+        }
+
+        // Else, read the demand
+        else if (currentState == State.PLAYING_JINGLE && !player.isPlaying)
+        {
+            ReadDemand();
+        }
+
+        // Else, hide the demand
+        else if (currentState == State.PLAYING_DEMAND && !player.isPlaying) {
+            HideDemand();
         }
     }
 
+    // Method for changing the microphone's position
     void ChangePosition()
     {
-        //transform.position = new Vector3(Random.Range(-18.6944f, 18.6944f), -1.0f, Random.Range(-7.0104f, 7.0104f));
-        transform.position = new Vector3(Random.Range(-3.0f, 3.0f), -1.0f, Random.Range(-3.0f, 3.0f)); //Random.Range(-180.0f, 180.0f)
+        transform.position = new Vector3(Random.Range(-18.6944f, 18.6944f), -1.0f, Random.Range(-7.0104f, 7.0104f));
+        //transform.position = new Vector3(Random.Range(-3.0f, 3.0f), -1.5f, Random.Range(-3.0f, 3.0f)); //Random.Range(-180.0f, 180.0f)
         transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, Random.Range(-180.0f, 180.0f), transform.rotation.eulerAngles.z);
+    }
+
+    // Method for showing a demand
+    void ShowDemand()
+    {
+        // Show the demand
+        headerText.GetComponent<TMP_Text>().SetText(headers[currentClip]);
+        if (headers[currentClip].StartsWith("BAM 1.0"))
+            header.GetComponent<Image>().color = new Color(1, 0.75f, 0, 1);
+        else
+            header.GetComponent<Image>().color = new Color(0.2f, 0.2f, 1, 1);
+        text.GetComponent<TMP_Text>().SetText(demands[currentClip]);
+        text.GetComponent<TMP_Text>().fontSize = (50.0f / demands[currentClip].Length) * 2.0f + 33.0f;
+        demandScore.GetComponent<TMP_Text>().SetText("Demands Found: " + (currentClip + 1));
+        popup.SetActive(true);
+
+        // Play the success sound
+        player.clip = success;
+        player.Play();
+
+        // Change state
+        currentState = State.PLAYING_JINGLE;
+    }
+
+    // Method for reading a demand
+    void ReadDemand()
+    {
+        // Change out to the demand
+        player.clip = voiceClips[currentClip];
+        player.Play();
+
+        // Change state
+        currentState = State.PLAYING_DEMAND;
+    }
+
+    // Method for hiding a demand after it has been read
+    void HideDemand()
+    {
+
+        // Increment the current clip
+        currentClip++;
+
+        // If all demands found, diplay win screen
+        if (currentClip >= 17)
+        {
+            Win();
+        } 
+        
+        // Else, keep playing game
+        else
+        {
+            // Change the position and hide the demand screen
+            popup.SetActive(false);
+            ChangePosition();
+
+            // Change the state back to waiting
+            currentState = State.WAITING;
+        }
+    }
+
+    void Win()
+    {
+        // Change the state to won
+        currentState = State.WON;
+
+        // Change the text
+        headerText.GetComponent<TMP_Text>().SetText("Congratulations!");
+        header.GetComponent<Image>().color = new Color(1, 0.75f, 0, 1);
+        text.GetComponent<TMP_Text>().SetText("You found all of BAM 1.0 and BAM 2.0's demands!");
+        text.GetComponent<TMP_Text>().fontSize = 50.0f;
+
+        // Play the success sound
+        player.clip = gameWon;
+        player.Play();
+
     }
 }

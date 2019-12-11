@@ -10,6 +10,6 @@ public class ProtestorScript : MonoBehaviour
         transform.rotation = Quaternion.Euler(0.0f, Random.Range(-180.0f, 180.0f),0.0f);
 
         // Move backward a random amount
-        transform.position = -transform.forward.normalized * Random.Range(0.5f, 3.0f);
+        transform.position = -transform.forward.normalized * Random.Range(0.5f, 5.0f);
     }
 }

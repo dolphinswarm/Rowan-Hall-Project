@@ -48,6 +48,10 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 48
       Script: {instanceID: 0}
+    - Class: 81
+      Script: {instanceID: 0}
+    - Class: 82
+      Script: {instanceID: 0}
     - Class: 83
       Script: {instanceID: 0}
     - Class: 89
@@ -312,7 +316,7 @@ ScriptsOnlyBuild:
     className: RectMask2D
   - hash:
       serializedVersion: 2
-      Hash: cf0aa2206c02c42643bd03005e1f0a59
+      Hash: d63837ccf0b35d3871cbfc1ff50c3a29
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: ScavengerHuntItem
