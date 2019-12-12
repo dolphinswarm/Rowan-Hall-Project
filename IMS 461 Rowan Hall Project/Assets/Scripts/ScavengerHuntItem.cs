@@ -171,8 +171,9 @@ public class ScavengerHuntItem : MonoBehaviour
     // Method for changing the microphone's position
     void ChangePosition()
     {
-        transform.position = new Vector3(Random.Range(-18.6944f, 18.6944f), -1.0f, Random.Range(-7.0104f, 7.0104f));
+        //transform.position = new Vector3(Random.Range(-18.6944f, 18.6944f), -1.0f, Random.Range(-7.0104f, 7.0104f));
         //transform.position = new Vector3(Random.Range(-3.0f, 3.0f), -1.5f, Random.Range(-3.0f, 3.0f)); //Random.Range(-180.0f, 180.0f)
+        transform.position = new Vector3(Random.Range(-15.0f, 15.0f), -1.0f, Random.Range(-6.0f, 6.0f));
         transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, Random.Range(-180.0f, 180.0f), transform.rotation.eulerAngles.z);
     }
 

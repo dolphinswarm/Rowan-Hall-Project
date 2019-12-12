@@ -1,7 +1,6 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
-    - ProtestorScript
     - ScavengerHuntItem
     - TitleScreen
     Unity.TextMeshPro.dll:
@@ -9,6 +8,7 @@ ScriptsOnlyBuild:
     - TMPro.TMP_Settings
     - TMPro.TMP_SpriteAsset
     - TMPro.TMP_StyleSheet
+    - TMPro.TextMeshPro
     - TMPro.TextMeshProUGUI
     Unity.XR.ARFoundation.dll:
     - UnityEngine.XR.ARFoundation.ARCameraBackground
@@ -48,6 +48,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 48
       Script: {instanceID: 0}
+    - Class: 64
+      Script: {instanceID: 0}
     - Class: 81
       Script: {instanceID: 0}
     - Class: 82
@@ -71,8 +73,6 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 10354}
     - Class: 114
-      Script: {instanceID: 10356}
-    - Class: 114
       Script: {instanceID: 10982}
     - Class: 114
       Script: {instanceID: 10992}
@@ -86,6 +86,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 11274}
     - Class: 114
       Script: {instanceID: 11440}
+    - Class: 114
+      Script: {instanceID: 11544}
     - Class: 114
       Script: {instanceID: 11568}
     - Class: 114
